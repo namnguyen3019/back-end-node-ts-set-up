@@ -1,6 +1,6 @@
 import User from "../../src/models/userModel";
 declare global {
-  namespace Express {
+  export namespace Express {
     interface Request {
       currentUser?: typeof User;
     }

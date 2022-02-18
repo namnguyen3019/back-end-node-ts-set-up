@@ -1,7 +1,10 @@
 import generateToken from "@src/utils/generateToken";
-import express from "express";
+import express, { Request } from "express";
 import asyncHandler from "express-async-handler";
 import User from "../models/userModel";
+export interface CustomRequest extends Request {
+  currentUser?: any;
+}
 export const registerUser = asyncHandler(async (req: any, res: any) => {
   const { name, email, password } = req.body;
 
@@ -14,7 +17,12 @@ export const registerUser = asyncHandler(async (req: any, res: any) => {
 
   const new_user = new User({ name, email, password });
   await new_user.save();
-  res.send(`Create a new user: ${name}`);
+
+  res.send({
+    name: new_user.name,
+    email: new_user.email,
+    token: generateToken(new_user._id),
+  });
 });
 
 export const loginUser = asyncHandler(
@@ -40,6 +48,11 @@ export const loginUser = asyncHandler(
   }
 );
 
-export const getUserProfile = asyncHandler(async (req: any, res: any) => {
-  res.send("Get profile");
-});
+// ================================
+
+export const getUserProfile = asyncHandler(
+  async (req: CustomRequest, res: express.Response) => {
+    const user = req.currentUser;
+    res.send(user);
+  }
+);
