@@ -1,4 +1,4 @@
-import User from "@src/models/userModel";
+import User, { UserDocument } from "@src/models/userModel";
 import { NextFunction, Request, Response } from "express";
 import expressAsyncHandler from "express-async-handler";
 import jwt, { JwtPayload } from "jsonwebtoken";
@@ -13,10 +13,13 @@ export const protect = expressAsyncHandler(
       try {
         token = req.headers.authorization.split(" ")[1];
         let decoded = jwt.verify(token, "secret_key_here") as JwtPayload;
-        console.log(decoded);
-        const user = await User.findById(decoded.id).select("-password");
+        const user: UserDocument | null = await User.findById(
+          decoded.id
+        ).select("-password");
+        if (user) {
+          req.currentUser = user;
+        }
 
-        req.currentUser = user;
         next();
       } catch (e) {
         console.error(e);

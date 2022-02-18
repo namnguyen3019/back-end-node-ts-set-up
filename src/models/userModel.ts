@@ -1,6 +1,18 @@
 import bcrypt from "bcrypt";
-import mongoose from "mongoose";
-const userSchema = new mongoose.Schema(
+import { Document, model, Schema, Types } from "mongoose";
+// 1. Create interface
+export interface UserDocument extends Document {
+  _id?: Types.ObjectId;
+  name: string;
+  email: string;
+  isAdmin: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  checkPassword: (password: string) => Promise<boolean>;
+}
+
+// 2. Define Schema
+const userSchema = new Schema(
   {
     name: {
       type: String,
@@ -25,6 +37,7 @@ const userSchema = new mongoose.Schema(
   }
 );
 
+// 3. Add some method
 userSchema.methods.checkPassword = async function (
   enteredPassword: string | Buffer
 ) {
@@ -38,6 +51,8 @@ userSchema.pre("save", function (next) {
   user.password = hash;
   next();
 });
-const User = mongoose.model("User", userSchema);
+
+// 4. Create Model
+const User = model<UserDocument>("User", userSchema);
 
 export default User;

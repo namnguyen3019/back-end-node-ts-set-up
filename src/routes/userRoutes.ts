@@ -3,12 +3,13 @@ import {
   loginUser,
   registerUser,
 } from "@src/controllers/userControllers";
+import { protect } from "@src/middleware/authUser";
 import express from "express";
 const router = express.Router();
 
 // api routes:  "/users/"
-router.get("/login", loginUser);
-router.get("/", getUserProfile);
+router.post("/login", loginUser);
+router.get("/profile", protect, getUserProfile);
 router.post("/register", registerUser);
 
 export default router;
